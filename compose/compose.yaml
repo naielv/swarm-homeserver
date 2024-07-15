@@ -8,20 +8,21 @@ services:
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns"
-      - "--certificatesresolvers.letsencrypt.acme.email=mail@mail.com"
-      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.disablePropagationCheck=true"
-      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--providers.swarm=true"
+      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
+      - "--providers.swarm.exposedbydefault=false"
+      #- "--certificatesresolvers.letsencrypt.acme.dnschallenge=false"
+      #- "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns"
+      #- "--certificatesresolvers.letsencrypt.acme.email=example@example.com"
+      #- "--certificatesresolvers.letsencrypt.acme.dnschallenge.disablePropagationCheck=true"
+      #- "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+      #- "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
-      - "--entrypoints.websecure.http.tls.certResolver=letsencrypt"
+      #- "--entrypoints.websecure.http.tls.certResolver=letsencrypt"
       - "--entrypoints.websecure.http.tls.domains[0].main=${MY_DOMAIN}"
       - "--entrypoints.websecure.http.tls.domains[0].sans=*.${MY_DOMAIN}"
     volumes:
@@ -36,8 +37,8 @@ services:
     ports:
       - "443:443"
       - "80:80"
-    environment:
-      DUCKDNS_TOKEN: "${DUCKDNS_TOKEN}"
+    #environment:
+    #  DUCKDNS_TOKEN: "${DUCKDNS_TOKEN}"
 
   authelia_redis:
     image: redis
@@ -68,7 +69,7 @@ services:
     expose: 
       - 9091
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Madrid
       X_AUTHELIA_CONFIG_FILTERS: template
       MY_DOMAIN: ${MY_DOMAIN}
       AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: /config/secrets/JWT_SECRET
@@ -85,7 +86,7 @@ services:
       - 'traefik.http.routers.sonarr.entryPoints=websecure'
       - 'traefik.http.routers.sonarr.middlewares=authelia@docker'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Madrid
     volumes:
       - ../data/sonarr:/config
       - /mnt/media/TV:/tv
@@ -101,7 +102,7 @@ services:
       - 'traefik.http.routers.radarr.entryPoints=websecure'
       - 'traefik.http.routers.radarr.middlewares=authelia@docker'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Madrid
     volumes:
       - ../data/radarr:/config
       - /mnt/media/Movies:/movies
@@ -117,7 +118,7 @@ services:
       - 'traefik.http.routers.deluge.entryPoints=websecure'
       - 'traefik.http.routers.deluge.middlewares=authelia@docker'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Madrid
     volumes:
       - ../data/deluge:/config
       - /mnt/media/Downloads:/downloads
@@ -131,7 +132,7 @@ services:
       - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)'
       - 'traefik.http.routers.jellyfin.entryPoints=websecure'
     environment:
-      TZ: Europe/Amsterdam
+      TZ: Europe/Madrid
     volumes:
       - ../data/jellyfin:/config
       - /mnt/media/Movies:/movies
